@@ -7,7 +7,7 @@ type VirtualListProps<T> = {
   overscan?: number;
   className?: string;
   style?: React.CSSProperties;
-  hasMore?: boolean; // if true, will observe sentinel to call loadMore
+  hasMore?: boolean;
   isLoading?: boolean;
   loadMore?: () => Promise<void> | void;
   renderItem: (
@@ -44,7 +44,6 @@ export default function VirtualList<T>(props: VirtualListProps<T>) {
     startIndex,
   } = useVirtualList<T>({ items, rowHeight, overscan });
 
-  // ResizeObserver: measure viewport height (container clientHeight)
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -54,7 +53,6 @@ export default function VirtualList<T>(props: VirtualListProps<T>) {
     return () => ro.disconnect();
   }, [measureViewport]);
 
-  // wire scroll - use passive listener for perf
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -70,7 +68,6 @@ export default function VirtualList<T>(props: VirtualListProps<T>) {
     };
   }, [onScroll]);
 
-  // IntersectionObserver sentinel -> loadMore (fires only when sentinel intersects)
   useEffect(() => {
     if (!hasMore || !loadMore) return;
     const sentinel = sentinelRef.current;
@@ -98,10 +95,8 @@ export default function VirtualList<T>(props: VirtualListProps<T>) {
       className={className}
       style={{ overflowY: "auto", height: "100%", minHeight: 0, ...style }}
     >
-      {/* top spacer */}
       <div style={{ height: topSpacer }} />
 
-      {/* visible rows rendered via renderItem; compute absolute index */}
       {visibleItems.map((it, i) => {
         const index = startIndex + i;
         const itemStyle: React.CSSProperties = { height: rowHeight };
@@ -117,13 +112,10 @@ export default function VirtualList<T>(props: VirtualListProps<T>) {
         );
       })}
 
-      {/* bottom spacer */}
       <div style={{ height: bottomSpacer }} />
 
-      {/* sentinel for loadMore */}
       {hasMore && <div ref={sentinelRef} style={{ height: 1 }} />}
 
-      {/* loading placeholder at end */}
       {isLoading && (
         <div style={{ padding: 12, textAlign: "center" }}>
           {loadingPlaceholder ?? "Loading..."}

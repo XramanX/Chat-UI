@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import ChatList from "../chat/ChatList";
 import ChatWindow from "../chat/ChatWindow";
-// import MobileBottomBar from "./MobileBottomBar";
+
 import "./AppShell.scss";
 
 export default function AppShell() {
@@ -30,8 +30,6 @@ export default function AppShell() {
           <ChatWindow onOpenList={openList} />
         </div>
       </main>
-
-      {/* <MobileBottomBar onOpenList={openList} /> */}
     </div>
   );
 }
