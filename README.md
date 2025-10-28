@@ -24,5 +24,4 @@
 
 ## Design decisions
 
-- `RTK` chosen for centralized predictable state and easy extension to real-time systems.
-- Minimal boilerplate to keep focus on UI and UX for the take-home evaluation.
+- Built for clarity, speed, and scalability with clean RTK architecture.
