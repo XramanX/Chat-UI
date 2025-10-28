@@ -1,0 +1,25 @@
+.btn {
+    border: 0;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .12s ease, transform .06s ease;
+
+    &-primary {
+        background: var(--accent);
+        color: #fff;
+    }
+
+    &-ghost {
+        background: transparent;
+        color: var(--text);
+        border: 1px solid rgba(15, 23, 36, 0.06);
+    }
+}
+
+.btn.small {
+    padding: 6px 8px;
+    font-size: 13px;
+    border-radius: 8px;
+}

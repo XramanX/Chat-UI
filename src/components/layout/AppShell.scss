@@ -1,0 +1,128 @@
+@use '../../styles/variables'as vars;
+
+.app-shell {
+    min-height: 100vh;
+    height: 100vh;
+    // display: block;
+    background: var(--bg);
+}
+
+/* mobile slide-over left panel (keeps earlier behaviour) */
+.left-panel {
+    display: none;
+}
+
+.left-panel .left-inner {
+    height: 100vh;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+/* slide backdrop for mobile */
+.slide-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 6, 18, 0.45);
+    z-index: 40;
+    opacity: 0;
+    transition: opacity .18s ease;
+}
+
+.slide-backdrop.visible {
+    display: block;
+    opacity: 1;
+}
+
+/* left panel slide-over */
+.left-panel.open {
+    display: block;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: min(92vw, 320px);
+    z-index: 50;
+    transform: translateX(0);
+    transition: transform .26s cubic-bezier(.2, .9, .2, 1);
+    background: var(--card);
+    box-shadow: 0 20px 40px rgba(10, 20, 40, 0.2);
+    padding: 12px;
+}
+
+/* main panel sizing (mobile default) */
+.main-panel {
+    min-height: calc(100vh - env(safe-area-inset-top));
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    min-height: 0;
+    padding: 12px;
+}
+
+/* center + constrain main content by default */
+.main-container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    gap: 16px;
+    align-items: stretch;
+    height: 100%;
+    min-height: 0;
+}
+
+/* ---------------------------
+   DESKTOP LAYOUT (>= 900px)
+   --------------------------- */
+@media (min-width: 900px) {
+    .app-shell {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        /* left column + right content */
+        gap: 16px;
+        // padding: 16px;
+        height: 100vh;
+    }
+
+    /* make left panel a true column */
+    .left-panel {
+        display: block;
+        position: relative;
+        transform: none !important;
+        width: auto;
+        top: auto;
+        bottom: auto;
+        left: auto;
+        box-shadow: none;
+        background: transparent;
+        padding: 0;
+    }
+
+    // .left-panel .left-inner {
+    //     height: calc(100vh - 32px);
+
+    // }
+
+    .slide-backdrop {
+        display: none;
+    }
+
+    /* make main-panel a proper full-height column and center content */
+    .main-panel {
+        height: 100vh;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: stretch;
+    }
+
+    /* This line ensures the main-container fills the available height so child chat-window can stretch */
+    .main-container {
+        height: 100%;
+        min-height: 0;
+        align-items: stretch;
+    }
+}
