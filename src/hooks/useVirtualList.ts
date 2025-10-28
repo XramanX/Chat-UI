@@ -16,12 +16,6 @@ export interface UseVirtualListResult<T> {
   measureViewport: (height: number) => void;
 }
 
-/**
- * Stable fixed-height virtual list hook
- * - No re-render flicker
- * - Throttled scroll updates via rAF
- * - Reusable anywhere
- */
 export default function useVirtualList<T>({
   items,
   rowHeight,
@@ -33,11 +27,9 @@ export default function useVirtualList<T>({
   const [viewportHeight, setViewportHeight] = useState(400);
   const [range, setRange] = useState({ start: 0, end: 10 });
 
-  // mutable refs (no initial render churn)
   const scrollRef = useRef<number>(0);
   const frame = useRef<number | null>(null);
 
-  // recalc visible range based on current scrollRef and viewportHeight
   const recalc = useCallback(() => {
     const st = scrollRef.current;
     const start = Math.max(0, Math.floor(st / rowHeight) - overscan);
@@ -46,7 +38,6 @@ export default function useVirtualList<T>({
       Math.ceil((st + viewportHeight) / rowHeight) + overscan
     );
     setRange((prev) => {
-      // avoid unnecessary state updates
       if (prev.start === start && prev.end === end) return prev;
       return { start, end };
     });
@@ -56,7 +47,6 @@ export default function useVirtualList<T>({
     (st: number) => {
       scrollRef.current = st;
       if (frame.current != null) {
-        // cancel previous scheduled frame if present
         cancelAnimationFrame(frame.current);
       }
       frame.current = requestAnimationFrame(() => {
@@ -69,7 +59,6 @@ export default function useVirtualList<T>({
 
   const measureViewport = useCallback(
     (h: number) => {
-      // small hysteresis to avoid tiny changes causing reflows
       if (Math.abs(h - viewportHeight) > 2) {
         setViewportHeight(h);
         if (frame.current != null) cancelAnimationFrame(frame.current);
@@ -82,7 +71,6 @@ export default function useVirtualList<T>({
     [viewportHeight, recalc]
   );
 
-  // visible items computed from stable range
   const visibleItems = useMemo(
     () => items.slice(range.start, range.end),
     [items, range]
@@ -94,7 +82,7 @@ export default function useVirtualList<T>({
     totalHeight - topSpacer - visibleItems.length * rowHeight
   );
 
-  // cleanup rAF on unmount
+  // cleaning up on unmount
   useEffect(() => {
     return () => {
       if (frame.current != null) {

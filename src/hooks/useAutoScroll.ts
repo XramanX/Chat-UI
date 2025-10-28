@@ -8,10 +8,8 @@ export default function useAutoScroll(
   useEffect(() => {
     const el = listRef.current;
     if (!el) return;
-    // ensure DOM painted
     requestAnimationFrame(() => {
       try {
-        // deterministic instant jump to bottom
         el.scrollTop = el.scrollHeight;
       } catch (e) {
         // ignore
