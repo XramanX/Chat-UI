@@ -31,7 +31,7 @@ export default function useVirtualList<T>({
   const totalHeight = totalCount * rowHeight;
 
   const [viewportHeight, setViewportHeight] = useState(400);
-  const [range, setRange] = useState({ start: 0, end: 0 });
+  const [range, setRange] = useState({ start: 0, end: 10 });
 
   // mutable refs (no initial render churn)
   const scrollRef = useRef<number>(0);

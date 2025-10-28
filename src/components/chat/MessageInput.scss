@@ -32,10 +32,8 @@
     max-height: 200px;
     overflow-y: auto;
     scrollbar-width: none;
-    /* Firefox */
 }
 
-/* Hide scrollbar for Chrome, Safari, Edge */
 .message-textarea::-webkit-scrollbar {
     display: none;
 }

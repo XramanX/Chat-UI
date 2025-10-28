@@ -22,14 +22,12 @@ export default function ChatWindow({
   const inputWrapperRef = useRef<HTMLDivElement | null>(null);
   const [inputHeight, setInputHeight] = useState<number>(0);
 
-  // auto-scroll only the messages container
   useAutoScroll(messagesRef, [
     chat?.messages.length,
     activeChatId,
     inputHeight,
   ]);
 
-  // measure input wrapper height and apply padding-bottom to messages
   useLayoutEffect(() => {
     const msgs = messagesRef.current;
     const inputWrap = inputWrapperRef.current;
@@ -80,7 +78,6 @@ export default function ChatWindow({
         {/* {not looking good} */}
       </header>
 
-      {/* scrollable messages box */}
       <div className="messages" ref={messagesRef} role="list">
         {chat.messages.length === 0 ? (
           <div className="empty-msg">Say hi 👋</div>
@@ -89,7 +86,6 @@ export default function ChatWindow({
         )}
       </div>
 
-      {/* input wrapper measured by JS; remains visually at the bottom */}
       <div className="input-wrapper" ref={inputWrapperRef}>
         <MessageInput />
       </div>
