@@ -2,13 +2,9 @@
 
 ## Run
 
-1. `npm create vite@latest chat-redux -- --template react-ts`
-2. `cd chat-redux`
-3. `npm install`
-4. `npm install @reduxjs/toolkit react-redux`
-5. Replace `src/` with provided files
-6. `npm run dev`
-7. Open `http://localhost:5173`
+1. `npm i`
+2. `npm run dev`
+3. Open `http://localhost:5173`
 
 ## Tech stack
 
@@ -25,15 +21,6 @@
 - Simulated incoming replies (API stub)
 - Auto-scroll to latest message
 - In-memory state (resets on reload)
-
-## Scalability notes
-
-- Uses Redux Toolkit `createSlice` — ready for async thunks & middleware (WebSocket, persistence).
-- Messages are currently denormalized inside chats for simplicity. For production with high-volume messages:
-  - Migrate to RTK Entity Adapter with normalized entities
-  - Add pagination / virtualization (e.g., react-window) for message lists
-  - Add WebSocket middleware to dispatch `receiveMessage`
-- Typed hooks (`useAppDispatch`, `useAppSelector`) preserve types across the app.
 
 ## Design decisions
 
