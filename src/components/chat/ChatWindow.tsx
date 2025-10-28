@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState, useEffect } from "react";
 import { useAppSelector } from "../../store/hooks";
 import MessageItem from "./MessageItem";
 import MessageInput from "./MessageInput";
@@ -56,26 +56,85 @@ export default function ChatWindow({
     };
   }, [chat?.messages.length, activeChatId]);
 
+  const isMobileQuery =
+    typeof window !== "undefined" && window.matchMedia
+      ? window.matchMedia("(max-width: 900px)")
+      : null;
+  const [isMobile, setIsMobile] = useState<boolean>(
+    !!(isMobileQuery && isMobileQuery.matches)
+  );
+
+  useEffect(() => {
+    if (!isMobileQuery) return;
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    try {
+      // modern
+      isMobileQuery.addEventListener("change", handler);
+    } catch {
+      // fallback
+      isMobileQuery.addListener(handler);
+    }
+    setIsMobile(isMobileQuery.matches);
+    return () => {
+      try {
+        isMobileQuery.removeEventListener("change", handler);
+      } catch {
+        isMobileQuery.removeListener(handler);
+      }
+    };
+  }, []);
+
+  function initialsFromName(name?: string) {
+    if (!name) return "?";
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  const messageCount = chat?.messages.length ?? 0;
+  const lastMsgTime = useMemo(() => {
+    const last = chat?.messages[chat.messages.length - 1];
+    if (!last) return "";
+    try {
+      return new Date(last.createdAt).toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit",
+      });
+    } catch {
+      return "";
+    }
+  }, [chat]);
+
   if (!chat) return <div className="chat-window empty">No chat selected</div>;
+
+  const displayName = (chat as any).participantName ?? chat.title;
+  const avatarInitials = initialsFromName(displayName);
 
   return (
     <div className="chat-window" data-chat-id={chat.id}>
       <header className="chat-header">
         <div className="left">
-          <button
-            className="open-list"
-            onClick={onOpenList}
-            aria-label="Open chat list"
-          >
-            <FiMenu />
-          </button>
-          <h2>{chat.title}</h2>
+          {isMobile && (
+            <button
+              className="open-list"
+              onClick={onOpenList}
+              aria-label="Open chat list"
+            >
+              <FiMenu />
+            </button>
+          )}
+
+          <div className="title-wrap">
+            <div className="chat-avatar">{avatarInitials}</div>
+            <div className="chat-title-info">
+              <h2>{displayName}</h2>
+              <div className="chat-meta">
+                {messageCount} {messageCount === 1 ? "message" : "messages"}
+                {lastMsgTime ? ` · ${lastMsgTime}` : ""}
+              </div>
+            </div>
+          </div>
         </div>
-        {/* <div className="meta">
-          {chat.messages.length}{" "}
-          {chat.messages.length === 1 ? "message" : "messages"}
-        </div> */}
-        {/* {not looking good} */}
       </header>
 
       <div className="messages" ref={messagesRef} role="list">

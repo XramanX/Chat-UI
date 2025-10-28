@@ -21,13 +21,22 @@ const chatSlice = createSlice({
   reducers: {
     createChat: (
       state,
-      action: PayloadAction<{ id: string; title: string }>
+      action: PayloadAction<{
+        id: string;
+        title: string;
+        participantId?: string;
+        participantName?: string;
+      }>
     ) => {
+      const payload = action.payload;
       const newChat: Chat = {
-        id: action.payload.id,
-        title: action.payload.title,
+        id: payload.id,
+        title: payload.title,
         createdAt: new Date().toISOString(),
         messages: [],
+        ...(payload.participantName
+          ? { participantName: payload.participantName }
+          : {}),
       };
 
       state.chats.unshift(newChat);

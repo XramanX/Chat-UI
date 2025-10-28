@@ -8,9 +8,10 @@ export interface Message {
   createdAt: string; // ISO timestamp
 }
 
-export interface Chat {
+export type Chat = {
   id: string;
   title: string;
   createdAt: string;
-  messages: Message[]; // will normalize later if needed
-}
+  messages: Message[];
+  participantName?: string;
+};

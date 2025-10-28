@@ -1,16 +1,13 @@
 import React, { useMemo } from "react";
 import type { Message } from "../../types";
+import { USERS } from "../../data/users";
+import { useAppSelector } from "../../store/hooks";
 import "./MessageItem.scss";
 
 type Props = {
   msg: Message;
-  // optional: showAvatar can be passed later to group messages visually
   showAvatar?: boolean;
 };
-
-function getInitials(senderId: string) {
-  return senderId === "me" ? "You" : "B";
-}
 
 function formatTime(iso: string) {
   try {
@@ -23,23 +20,51 @@ function formatTime(iso: string) {
   }
 }
 
+function getInitialsFromName(name?: string) {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+function resolveSenderName(
+  msg: Message,
+  chats: { id: string; participantName?: string; title: string }[]
+) {
+  if (msg.senderId === "me") return "You";
+  const byUser = USERS.find((u) => u.id === msg.senderId);
+  if (byUser) return byUser.name;
+  const chat = chats.find((c) => c.id === msg.chatId);
+  if (chat) return chat.participantName ?? chat.title;
+  return "Unknown";
+}
+
 function MessageInner({ msg, showAvatar = true }: Props) {
   const isMe = msg.senderId === "me";
   const time = useMemo(() => formatTime(msg.createdAt), [msg.createdAt]);
+  const chats = useAppSelector((s) => s.chat.chats);
+  const senderName = useMemo(() => resolveSenderName(msg, chats), [msg, chats]);
+  const initials = useMemo(() => {
+    if (msg.senderId === "me") return "You";
+    const byUser = USERS.find((u) => u.id === msg.senderId);
+    if (byUser) return getInitialsFromName(byUser.name);
+    const chat = chats.find((c) => c.id === msg.chatId);
+    return getInitialsFromName(chat?.participantName ?? chat?.title);
+  }, [msg, chats]);
 
   return (
     <article
-      aria-label={`Message from ${isMe ? "you" : "bot"} at ${time}`}
+      aria-label={`Message from ${senderName} at ${time}`}
       className={`message-item ${isMe ? "me" : "other"}`}
     >
       {!isMe && showAvatar && (
         <div className="avatar" aria-hidden>
-          {getInitials(msg.senderId)}
+          {initials}
         </div>
       )}
 
       <div className="content">
-        {!isMe && <div className="sender">Bot</div>}
+        {!isMe && <div className="sender">{senderName}</div>}
         <div className="bubble" role="group">
           <div className="text">{msg.content}</div>
         </div>
@@ -47,14 +72,6 @@ function MessageInner({ msg, showAvatar = true }: Props) {
           {time}
         </time>
       </div>
-
-      {/* {isMe && (
-        <div className="me-meta">
-          <time className="time" dateTime={msg.createdAt}>
-            {time}
-          </time>
-        </div>
-      )} */}
     </article>
   );
 }

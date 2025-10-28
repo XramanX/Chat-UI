@@ -27,13 +27,6 @@
             align-items: center;
             gap: 10px;
 
-            h2 {
-                font-size: 17px;
-                font-weight: 600;
-                color: var(--text, #0f1723);
-                margin: 0;
-            }
-
             .open-list {
                 display: none;
                 align-items: center;
@@ -57,11 +50,48 @@
                     transform: translateY(-1px);
                 }
             }
-        }
 
-        .meta {
-            font-size: 13px;
-            color: var(--muted, #6b7280);
+            .title-wrap {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+
+                .chat-avatar {
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: #eef2ff;
+                    color: #0f1723;
+                    font-weight: 700;
+                    font-size: 14px;
+                    flex-shrink: 0;
+                }
+
+                .chat-title-info {
+                    display: flex;
+                    flex-direction: column;
+                    min-width: 0;
+
+                    h2 {
+                        margin: 0;
+                        font-size: 16px;
+                        font-weight: 700;
+                        color: var(--text, #0f1723);
+                        white-space: nowrap;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                    }
+
+                    .chat-meta {
+                        font-size: 12px;
+                        color: var(--muted, #6b7280);
+                        margin-top: 2px;
+                    }
+                }
+            }
         }
     }
 
@@ -123,16 +153,24 @@
                 gap: 8px;
 
                 .open-list {
-                    display: inline-flex; // visible only on mobile
+                    display: inline-flex;
                 }
 
-                h2 {
-                    font-size: 16px;
-                }
-            }
+                .title-wrap {
+                    .chat-avatar {
+                        width: 36px;
+                        height: 36px;
+                        font-size: 13px;
+                    }
 
-            .meta {
-                font-size: 12px;
+                    h2 {
+                        font-size: 15px;
+                    }
+
+                    .chat-meta {
+                        font-size: 11px;
+                    }
+                }
             }
         }
 

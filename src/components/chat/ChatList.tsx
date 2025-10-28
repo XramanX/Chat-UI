@@ -23,7 +23,6 @@ import "./ChatList.scss";
 
 const ROW_HEIGHT = 72;
 const LOAD_BATCH = 12;
-const MAX_ITEMS = 4000;
 
 const ChatRow = React.memo(function ChatRow({
   chat,
@@ -72,7 +71,6 @@ export default function ChatList({ onNavigate }: { onNavigate?: () => void }) {
   const dispatch = useAppDispatch();
 
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
   const searchIconRef = useRef<HTMLDivElement | null>(null);
 
   const [newChatOpen, setNewChatOpen] = useState(false);
@@ -169,7 +167,6 @@ export default function ChatList({ onNavigate }: { onNavigate?: () => void }) {
 
   const loadMore = useCallback(async () => {
     if (loadingRef.current) return;
-    if (chats.length >= MAX_ITEMS) return;
 
     const root = containerRef.current;
     const BOTTOM_THRESHOLD = 48;
@@ -209,45 +206,7 @@ export default function ChatList({ onNavigate }: { onNavigate?: () => void }) {
 
     autoScrollRef.current = false;
     loadingRef.current = false;
-  }, [dispatch, chats.length]);
-
-  useEffect(() => {
-    const sentinel = sentinelRef.current;
-    const root = containerRef.current;
-    if (!sentinel || !root) return;
-
-    const obs = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (!e.isIntersecting) continue;
-
-          if (!hasUserScrolledRef.current) {
-            const nearBottom =
-              root.scrollTop + root.clientHeight >= root.scrollHeight - 2;
-            if (!nearBottom) {
-              return;
-            }
-          }
-
-          obs.unobserve(sentinel);
-
-          loadMore().finally(() => {
-            setTimeout(() => {
-              if (sentinel.isConnected && chats.length < MAX_ITEMS) {
-                obs.observe(sentinel);
-              }
-            }, 140);
-          });
-
-          break;
-        }
-      },
-      { root, threshold: 0.1 }
-    );
-
-    obs.observe(sentinel);
-    return () => obs.disconnect();
-  }, [loadMore, chats.length]);
+  }, [dispatch]);
 
   const onPick = useCallback(
     (id: string) => {
@@ -270,9 +229,27 @@ export default function ChatList({ onNavigate }: { onNavigate?: () => void }) {
     setToDelete(null);
   };
 
-  const onCreate = (title: string) => {
+  const onCreate = (userOrTitle: string) => {
+    const existing = chats.find(
+      (c) =>
+        (c.participantName && c.participantName === userOrTitle) ||
+        c.title === userOrTitle
+    );
+    if (existing) {
+      dispatch(setActive({ id: existing.id }));
+      closeNew();
+      onNavigate?.();
+      return;
+    }
+
     const id = "chat-" + Math.random().toString(36).slice(2, 9);
-    dispatch(createChat({ id, title }));
+    dispatch(
+      createChat({
+        id,
+        title: userOrTitle,
+        participantName: userOrTitle,
+      })
+    );
     closeNew();
     onNavigate?.();
   };
@@ -352,7 +329,7 @@ export default function ChatList({ onNavigate }: { onNavigate?: () => void }) {
 
         <div style={{ height: bottomSpacer, flex: "none" }} />
 
-        <div ref={sentinelRef} style={{ height: 1, width: "100%" }} />
+        <div style={{ height: 1, width: "100%" }} />
 
         {loadingRef.current && <div className="loading-more">Loading...</div>}
       </div>
